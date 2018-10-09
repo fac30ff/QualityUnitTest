@@ -22,5 +22,4 @@ class QueryStorage {
     this.storageMap.clear();
   }
 
-
 }

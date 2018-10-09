@@ -8,61 +8,72 @@ public class MainApp {
 
   static class Utils {
 
-
-
-
-
-    static boolean checkIfFirstLineIsNumber(int number) {
-      return (Number)number instanceof Number;
+    static boolean validateQuery(String input) {
+      return isInt(input) || new QueryValidator(RegExValidateQuery.FULL_REGEX.name()).validateQuery(input);
     }
 
-    static boolean validateQuery(String input) {
-      String s1 = ;
-      String s2 = "(000[0-9] | 9999)";
-
-
-      return (Number)Integer.parseInt(input) instanceof Number || input
+    static boolean isInt(String input) {
+      if (input == null) {
+        return false;
+      }
+      int length = input.length();
+      if (length == 0) {
+        return false;
+      }
+      int i = 0;
+      if (input.charAt(0) == '-') {
+        if (length == 1) {
+          return false;
+        }
+        i = 1;
+      }
+      for (; i < length; i++) {
+        char c = input.charAt(i);
+        if (c <= '/' || c >= ':') {
+          return false;
+        }
+      }
+      return true;
     }
   }
 
   public static void main(String[] args) {
 
-    BufferedReader br = null;
     Integer n = 1;
     int i = 0;
     QueryStorage queryStorage = new QueryStorage();
 
 
-    try {
-
-      br = new BufferedReader(new InputStreamReader(System.in));
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 
       while (i < n) {
 
         System.out.print("Enter something : ");
         String input = br.readLine();
 
-        if (input.length() == 1 && Utils.checkIfFirstLineIsNumber(Integer.parseInt(input))) {
+        /*if (!Utils.validateQuery(input)) {
+          break;
+        }*/
+
+        if (Utils.isInt(input)) {
           n = Integer.parseInt(input);
           i++;
         } else {
+
+          //create and store 2 arraylist 1 for c 1 for d
+
+          //create stream from list c
+
+          //for loop arraylist from d with filter and predicate
+
+          //create final hashmap key d value list c
+
           queryStorage.addQuery(i, input);
         }
       }
 
     } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if (br != null) {
-        try {
-          br.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
     }
-
-
-
   }
 }
