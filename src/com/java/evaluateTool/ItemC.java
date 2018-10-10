@@ -9,7 +9,7 @@ class ItemC {
   private LocalDate dateFrom;
   private String minutes;
 
-  public ItemC(String serviceId, String questionType, String answerType, LocalDate dateFrom, String minutes) {
+  ItemC(String serviceId, String questionType, String answerType, LocalDate dateFrom, String minutes) {
     this.serviceId = serviceId;
     this.questionType = questionType;
     this.answerType = answerType;
@@ -22,23 +22,23 @@ class ItemC {
   }
 
 
-  public String getServiceId() {
+  String getServiceId() {
     return serviceId;
   }
 
-  public String getQuestionType() {
+  String getQuestionType() {
     return questionType;
   }
 
-  public String getAnswerType() {
+  String getAnswerType() {
     return answerType;
   }
 
-  public LocalDate getDateFrom() {
+  LocalDate getDateFrom() {
     return dateFrom;
   }
 
-  public String getMinutes() {
+  String getMinutes() {
     return minutes;
   }
 

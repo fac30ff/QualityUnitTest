@@ -1,14 +1,14 @@
 package com.java.evaluateTool;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,8 +22,108 @@ public class MainApp {
               .average().getAsDouble();
     }
 
+    static boolean validateQueryWithWaitT(String s1, String s2){
+      if (s2.equals("*")) {
+        return true;
+      } else {
+        Pattern pattern = Pattern.compile(s2 + "+");
+        Matcher matcher = pattern.matcher(s1);
+        return matcher.find();
+      }
+    }
+
     static boolean validateQuery(String input) {
       return isInt(input) || new QueryValidator(RegExValidateQuery.FULL_REGEX.name()).validateQuery(input);
+    }
+
+    static boolean equalityWaitingTimeAndQueryQuestionType(String waitingTime, String query) {
+      String[] tempWT = waitingTime.split(".");
+      String[] tempQ = query.split(".");
+      boolean flag =false;
+      int lengthWT = tempWT.length;
+      int lengthQ = tempQ.length;
+      if (query.equals("*")) {
+        System.out.println(query + waitingTime);
+        flag = true;
+        System.out.println(flag + " : eto *");
+      } else if(lengthWT == lengthQ) {
+        for (int i = 0; i < lengthWT; i++) {
+          System.out.println(query + waitingTime);
+          flag = tempWT[i].equals(tempQ[i]);
+          }
+        } else if(lengthWT > lengthQ) {
+        for (int k = 0; k < lengthQ; k++) {
+          System.out.println(query + waitingTime);
+          flag = tempWT[k].equals(tempQ[k]);
+          }
+        } else {
+        flag = false;
+      }
+      System.out.println(flag);
+      return flag;
+    }
+
+    static List<ItemC> createListOfItemsC(List<String> arrayC) {
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.MM.yyyy");
+      return arrayC.stream().map(e -> e.split(" "))
+              .map(temp -> new ItemC(temp[1], temp[2], temp[3], LocalDate.parse(temp[4], formatter), temp[5]))
+              .collect(Collectors.toList());
+    }
+
+    static List<ItemD> createListOfItemsD(List<String> arrayD) {
+      List<ItemD> itemDList = new ArrayList<>();
+      DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d.MM.yyyy");
+      arrayD.forEach(e -> {
+        String[] temp = e.split(" ");
+        if (temp.length == 4 && !temp[3].contains("-")) {
+          itemDList.add(new ItemD(temp[1], temp[2], LocalDate.parse(temp[3], formatter)));
+        } else if(temp.length == 4 && temp[3].contains("-")) {
+          String[] temp3 = temp[3].split("-");
+          itemDList.add(new ItemD(temp[1], temp[2], LocalDate.parse(temp3[0], formatter), LocalDate.parse(temp3[1], formatter)));
+        } else {
+          if (!temp[4].contains("-")) {
+            itemDList.add(new ItemD(temp[1], temp[2], temp[3], LocalDate.parse(temp[4], formatter)));
+          } else {
+            String[] temp2 = temp[4].split("-");
+            itemDList.add(new ItemD(temp[1], temp[2], temp[3], LocalDate.parse(temp2[0], formatter), LocalDate.parse(temp2[1], formatter)));
+          }
+        }
+      });
+      return itemDList;
+    }
+
+    static Map<ItemD, List<ItemC>> mappingItemConItemD(List<ItemD> itemDList, List<ItemC> itemCList){
+      Map<ItemD, List<ItemC>> map = new HashMap<>();
+      itemDList.forEach(d -> {
+        Stream<ItemC> itemCStream = itemCList.stream();
+        List<ItemC> collectItemC = itemCStream.filter(e -> {
+          if(d.getDateTo() == null) {
+            return e.getDateFrom().isAfter(d.getDateFrom()) || e.getDateFrom().isEqual(d.getDateFrom());
+          } else {
+            return e.getDateFrom().isAfter(d.getDateFrom())
+                    && e.getDateFrom().isBefore(d.getDateTo()) || e.getDateFrom().isEqual(d.getDateFrom())
+                    || e.getDateFrom().isEqual(d.getDateTo());
+          }
+        })
+                .filter(e -> Utils.validateQueryWithWaitT(e.getServiceId(), d.getServiceId()))
+                .filter(e -> Objects.nonNull(e.getQuestionType()))
+                .filter(e -> Utils.validateQueryWithWaitT(e.getQuestionType(), d.getQuestionType()))
+                .filter(e -> e.getAnswerType().equals(d.getAnswerType()))
+                .collect(Collectors.toList());
+        map.put(d, collectItemC);
+      });
+      return map;
+    }
+
+    static void printFromResultMap(Map<ItemD, List<ItemC>> map) {
+      map.forEach((k,v) -> {
+                if (v.size() == 0) {
+                  System.out.println("-");
+                } else {
+                  System.out.println(Utils.averageMinute(v));
+                }
+              }
+      );
     }
 
     static boolean isInt(String input) {
@@ -53,25 +153,17 @@ public class MainApp {
 
   public static void main(String[] args) {
 
-    Integer n = 1;
+    int n = 1;
     int i = 0;
-    QueryStorage queryStorage = new QueryStorage();
+
     List<String> arrayC = new ArrayList<>();
     List<String> arrayD = new ArrayList<>();
-    Map<String, String> filteredMap;
 
 
     /*try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 
       while (i < n) {
-
-        System.out.print("Enter something : ");
         String input = br.readLine();
-
-        *//*if (!Utils.validateQuery(input)) {
-          break;
-        }*//*
-
         if (Utils.isInt(input)) {
           n = Integer.parseInt(input);
           i++;
@@ -82,22 +174,15 @@ public class MainApp {
             arrayD.add(input);
           }
 
-          //create and store 2 arraylist 1 for c 1 for d
-
-          //create stream from list c
-
-          //for loop arraylist from d with filter and predicate
-
-          //create final hashmap key d value list c
-
-          //queryStorage.addQuery(i, input);
         }
       }
 
     } catch (IOException e) {
       e.printStackTrace();
-    }
-*/
+    }*/
+
+//* Testing data
+
     String test = "C 1.1 8.15.1 P 15.10.2012 83";
     String testC1 = "C 1 10.1 P 01.12.2012 65";
     String testC2 = "C 1.1 5.5.1 P 01.11.2012 117";
@@ -116,66 +201,10 @@ public class MainApp {
     arrayD.add(testD2);
     arrayD.add(testD3);
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-
-
-    List<ItemC> itemCList = new ArrayList<>();
-    List<ItemD> itemDList = new ArrayList<>();
-
-
-    arrayC.forEach(e -> {
-     String[] temp = e.split(" ");
-      itemCList.add(new ItemC(temp[1], temp[2], temp[3], LocalDate.parse(temp[4], formatter), temp[5]));
-    });
-
-    arrayD.forEach(e -> {
-      String[] temp = e.split(" ");
-      if (!temp[4].contains("-")) {
-        itemDList.add(new ItemD(temp[1], temp[2], temp[3], LocalDate.parse(temp[4], formatter)));
-      } else {
-        String[] temp2 = temp[4].split("-");
-        itemDList.add(new ItemD(temp[1], temp[2], temp[3], LocalDate.parse(temp2[0], formatter), LocalDate.parse(temp2[1], formatter)));
-      }
-    });
-    //String[] split = test.split(" ");
-    //String[] split1 = testD.split(" ");
-    /*ItemD itemD;
-    if (!split1[4].contains("-")) {
-      itemD = new ItemD(split1[1], split1[2], split1[3], LocalDate.parse(split1[4], formatter));
-    } else {
-      String[] split2 = split1[4].split("-");
-      itemD = new ItemD(split1[1], split1[2], split1[3], LocalDate.parse(split2[0], formatter), LocalDate.parse(split2[1], formatter));
-    }*/
-
-    /*ItemC itemC = new ItemC(split[1], split[2], split[3], LocalDate.parse(split[4], formatter), split[5]);
-    for (String s : split) {
-      System.out.println(s);
-    }*/
-    //System.out.println(itemC.toString());
-   // System.out.println(itemD.toString());
-
-    //itemCList.add(itemC);
-
-    //itemDList.add(itemD);
-
-    Stream<ItemC> itemCStream = itemCList.stream();
-
-    Map<ItemD, List<ItemC>> map = new HashMap<>();
-    itemDList.forEach(d -> {
-      List<ItemC> collectItemC = itemCStream.filter(e -> e.getDateFrom().isAfter(d.getDateFrom())
-              && e.getDateFrom().isBefore(d.getDateTo()) || e.getDateFrom().isEqual(d.getDateFrom())
-              || e.getDateFrom().isEqual(d.getDateTo()))
-              .filter(e -> Integer.parseInt(String.valueOf(e.getServiceId().charAt(0)))
-                      == Integer.parseInt(String.valueOf(d.getServiceId().charAt(0))) || d.getServiceId().equals("*"))
-              .filter(e -> Integer.parseInt(String.valueOf(e.getQuestionType().charAt(0)))
-                      == Integer.parseInt(String.valueOf(d.getQuestionType().charAt(0))) || d.getQuestionType().equals("*"))
-          .collect(Collectors.toList());
-      map.put(d, collectItemC);
-    });
-
-    map.forEach((k,v) ->
-      System.out.println(Utils.averageMinute(v))
-    );
+    List<ItemC> itemCList = Utils.createListOfItemsC(arrayC);
+    List<ItemD> itemDList = Utils.createListOfItemsD(arrayD);
+    Map<ItemD, List<ItemC>> map = Utils.mappingItemConItemD(itemDList, itemCList);
+    Utils.printFromResultMap(map);
 
   }
 

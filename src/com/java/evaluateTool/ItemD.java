@@ -9,14 +9,26 @@ class ItemD {
   private LocalDate dateFrom;
   private LocalDate dateTo;
 
-  public ItemD(String serviceId, String questionType, String answerType, LocalDate dateFrom) {
+  ItemD(String serviceId, String answerType, LocalDate dateFrom, LocalDate dateTo) {
+    this.serviceId = serviceId;
+    this.answerType = answerType;
+    this.dateFrom = dateFrom;
+    this.dateTo = dateTo;
+  }
+  ItemD(String serviceId, String answerType, LocalDate dateFrom) {
+    this.serviceId = serviceId;
+    this.answerType = answerType;
+    this.dateFrom = dateFrom;
+  }
+
+  ItemD(String serviceId, String questionType, String answerType, LocalDate dateFrom) {
     this.serviceId = serviceId;
     this.questionType = questionType;
     this.answerType = answerType;
     this.dateFrom = dateFrom;
   }
 
-  public ItemD(String serviceId, String questionType, String answerType, LocalDate dateFrom, LocalDate dateTo) {
+  ItemD(String serviceId, String questionType, String answerType, LocalDate dateFrom, LocalDate dateTo) {
     this.serviceId = serviceId;
     this.questionType = questionType;
     this.answerType = answerType;
@@ -28,23 +40,23 @@ class ItemD {
     return new ItemD(serviceId, questionType, answerType, dateFrom, dateTo);
   }
 
-  public String getServiceId() {
+  String getServiceId() {
     return serviceId;
   }
 
-  public String getQuestionType() {
+  String getQuestionType() {
     return questionType;
   }
 
-  public String getAnswerType() {
+  String getAnswerType() {
     return answerType;
   }
 
-  public LocalDate getDateFrom() {
+  LocalDate getDateFrom() {
     return dateFrom;
   }
 
-  public LocalDate getDateTo() {
+  LocalDate getDateTo() {
     return dateTo;
   }
 
