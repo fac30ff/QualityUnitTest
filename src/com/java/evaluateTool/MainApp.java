@@ -1,5 +1,8 @@
 package com.java.evaluateTool;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -69,7 +72,7 @@ public class MainApp {
       return itemDList;
     }
 
-    static Map<ItemD, List<ItemC>> mappingItemConItemD(List<ItemD> itemDList, List<ItemC> itemCList){
+    static Map<ItemD, List<ItemC>> mappingItemCOnItemD(List<ItemD> itemDList, List<ItemC> itemCList){
       Map<ItemD, List<ItemC>> map = new HashMap<>();
       itemDList.forEach(d -> {
         Stream<ItemC> itemCStream = itemCList.stream();
@@ -135,9 +138,9 @@ public class MainApp {
     List<String> arrayD = new ArrayList<>();
 
 
-    /*try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
+    try (BufferedReader br = new BufferedReader(new InputStreamReader(System.in))) {
 
-      while (i < n) {
+      while (i <= n) {
         String input = br.readLine();
         if (Utils.isInt(input)) {
           n = Integer.parseInt(input);
@@ -145,17 +148,19 @@ public class MainApp {
         } else {
           if (input.charAt(0) == 'C') {
             arrayC.add(input);
+            i++;
           } else if (input.charAt(0) == 'D') {
             arrayD.add(input);
+            i++;
           }
-
         }
       }
 
     } catch (IOException e) {
       e.printStackTrace();
-    }*/
+    }
 
+/**
 //* Testing data
 
     String test = "C 1.1 8.15.1 P 15.10.2012 83";
@@ -175,10 +180,11 @@ public class MainApp {
     arrayD.add(testD);
     arrayD.add(testD2);
     arrayD.add(testD3);
+*/
 
     List<ItemC> itemCList = Utils.createListOfItemsC(arrayC);
     List<ItemD> itemDList = Utils.createListOfItemsD(arrayD);
-    Map<ItemD, List<ItemC>> map = Utils.mappingItemConItemD(itemDList, itemCList);
+    Map<ItemD, List<ItemC>> map = Utils.mappingItemCOnItemD(itemDList, itemCList);
     Utils.printFromResultMap(map);
 
   }
