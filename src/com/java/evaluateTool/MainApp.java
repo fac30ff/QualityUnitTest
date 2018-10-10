@@ -32,35 +32,12 @@ public class MainApp {
       }
     }
 
-    static boolean validateQuery(String input) {
-      return isInt(input) || new QueryValidator(RegExValidateQuery.FULL_REGEX.name()).validateQuery(input);
+    static boolean validateQueryWithWaitTByTime(LocalDate wt1, LocalDate q1) {
+      return wt1.isAfter(q1) || wt1.isEqual(q1);
     }
 
-    static boolean equalityWaitingTimeAndQueryQuestionType(String waitingTime, String query) {
-      String[] tempWT = waitingTime.split(".");
-      String[] tempQ = query.split(".");
-      boolean flag =false;
-      int lengthWT = tempWT.length;
-      int lengthQ = tempQ.length;
-      if (query.equals("*")) {
-        System.out.println(query + waitingTime);
-        flag = true;
-        System.out.println(flag + " : eto *");
-      } else if(lengthWT == lengthQ) {
-        for (int i = 0; i < lengthWT; i++) {
-          System.out.println(query + waitingTime);
-          flag = tempWT[i].equals(tempQ[i]);
-          }
-        } else if(lengthWT > lengthQ) {
-        for (int k = 0; k < lengthQ; k++) {
-          System.out.println(query + waitingTime);
-          flag = tempWT[k].equals(tempQ[k]);
-          }
-        } else {
-        flag = false;
-      }
-      System.out.println(flag);
-      return flag;
+    static boolean validateQueryWithWaitTByTime(LocalDate wt1, LocalDate q1, LocalDate q2) {
+      return wt1.isAfter(q1) && wt1.isBefore(q2) || wt1.isEqual(q1) || wt1.isEqual(q2);
     }
 
     static List<ItemC> createListOfItemsC(List<String> arrayC) {
@@ -98,16 +75,14 @@ public class MainApp {
         Stream<ItemC> itemCStream = itemCList.stream();
         List<ItemC> collectItemC = itemCStream.filter(e -> {
           if(d.getDateTo() == null) {
-            return e.getDateFrom().isAfter(d.getDateFrom()) || e.getDateFrom().isEqual(d.getDateFrom());
+            return validateQueryWithWaitTByTime(e.getDateFrom(), d.getDateFrom());
           } else {
-            return e.getDateFrom().isAfter(d.getDateFrom())
-                    && e.getDateFrom().isBefore(d.getDateTo()) || e.getDateFrom().isEqual(d.getDateFrom())
-                    || e.getDateFrom().isEqual(d.getDateTo());
+            return validateQueryWithWaitTByTime(e.getDateFrom(), d.getDateFrom(), d.getDateTo());
           }
         })
-                .filter(e -> Utils.validateQueryWithWaitT(e.getServiceId(), d.getServiceId()))
+                .filter(e -> validateQueryWithWaitT(e.getServiceId(), d.getServiceId()))
                 .filter(e -> Objects.nonNull(e.getQuestionType()))
-                .filter(e -> Utils.validateQueryWithWaitT(e.getQuestionType(), d.getQuestionType()))
+                .filter(e -> validateQueryWithWaitT(e.getQuestionType(), d.getQuestionType()))
                 .filter(e -> e.getAnswerType().equals(d.getAnswerType()))
                 .collect(Collectors.toList());
         map.put(d, collectItemC);
@@ -120,7 +95,7 @@ public class MainApp {
                 if (v.size() == 0) {
                   System.out.println("-");
                 } else {
-                  System.out.println(Utils.averageMinute(v));
+                  System.out.println(averageMinute(v));
                 }
               }
       );
